@@ -12,11 +12,11 @@ def polarGetOffsets(dst):
     #polar coordinates
     #we have 4*i nodes on destination i with uniform distribution because of the same distance .
     numberOfNodes=dst*4
-    print ('nodes: ', numberOfNodes)
+    #print ('nodes: ', numberOfNodes)
     i=360/numberOfNodes
-    print ('fi',fi)
+    #print ('fi',fi)
     offsets=np.arange(0,360,fi)
-    print ('offsets', offsets)
+    #print ('offsets', offsets)
               
 return offsets
 
