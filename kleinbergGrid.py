@@ -20,3 +20,79 @@ def polarGetOffsets(dst):
               
 return offsets
 
+
+#normalize probs
+def normalize(probs):
+    prob_factor = 1 / sum(probs)
+    return [prob_factor * p for p in probs]
+
+def getDistance(r,n):
+    #assign probabilities(probs) to distances
+    probs=np.fromfunction(lambda distance: 1/(distance**r), (n,))
+    #delete prob for element with disatnce 0
+    probs=np.delete(probs, 0, 0)
+    #normalize probs(after calculation of sum of probabilities for all distances should be 1)
+    probs=normalize(probs)
+    #print (probs)
+    #choose distance based on probabilities according to the (1/distance^r)
+    distance=np.random.choice(np.arange(1,n),p=probs)    
+    return distance
+
+
+#get all possible shortcuts for distance "dst".
+#dst=distance
+def getAllOffsets(dst):
+    offsets = list();
+    #we have 4*i nodes on destination i with uniform distribution because of the same distance .
+    numberOfNodes=dst*4
+    x=np.arange(-dst-1,dst+1)
+    y=np.arange(-dst-1,dst+1)
+    for i in x:
+        for j in y:
+            if (abs(i)+abs(j))==dst:
+                offsets.append((i,j))
+    return offsets
+
+
+#pefrorm check and filter only the sum of (shortcut and offset) coordinates fits the original matrix.  
+def rejection(allOffsets,k,nodePosition,matrixSize):
+    import random
+    offsets = list();
+    for coords in allOffsets:
+        #sum initial node and offstet 
+        offsetNodeCoords=tuple(map(operator.add, coords, nodePosition))
+        #check if summ of (initial node and shortcut offset) fits in the initial matrix
+        if 0 <= offsetNodeCoords[0] <= matrixSize[0] and  0 <= offsetNodeCoords[1] <= matrixSize[1]:
+            #if summ fits in matrix, add the shourtcut offset to the list 
+            #offsets.append(coords)
+            offsets.append(offsetNodeCoords)
+        #exit the cycle because of shortcut number limit in main function.
+        #if (len(offsets) >= k):
+        #    break
+    offsets=random.sample(offsets, k)
+    return offsets    
+    
+def dist(u,v):
+    #print (u,v)
+    #print (u[0],v[0],u[1],v[1])
+    return (abs(u[0]-v[0])+abs(u[1]-v[1]))
+
+#k = number of offsets
+#r = magic value :D
+#n = matrix size
+def make_shortcut_offset(k,r,n,nodePos):
+    #fit the sircle such that there always could be a solution when trying to find an offset.
+    
+    #radius=dist((n-nodePos[0],n-nodePos[1]) ,nodePos)
+    radius=dist((n,n) ,nodePos)
+    #print (nodePos)
+    #radius=2*(n-1)
+    #choose distance from [0,radius] according to the probability (1/distance^r)
+    distance=getDistance(r,radius)   
+    #print('dst:',distance)
+    #allOffsets=set of "fi" variables= degree from 0-360 in eucalidian space
+    allOffsets=getAllOffsets(distance)
+    #print('allOffsets',allOffsets)
+    offsets=rejection(allOffsets,k,nodePos,(n,n))
+    #print('resultingOffsets: ', offsets)
+    return offsets
