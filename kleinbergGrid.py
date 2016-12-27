@@ -96,3 +96,54 @@ def make_shortcut_offset(k,r,n,nodePos):
     offsets=rejection(allOffsets,k,nodePos,(n,n))
     #print('resultingOffsets: ', offsets)
     return offsets
+
+
+def shortestDistance(u,v,shortcut):
+    #tuple(map(tuple, nodePos))
+    x=0
+    y=1
+    #print('u:', u)
+    uR=[u[x]+1,u[y]]
+    uL=[u[x]-1,u[y]]
+    uU=[u[x],u[y]+1]
+    uD=[u[x],u[y]-1]
+    
+    
+    neigh=[uR,uL,uU,uD,shortcut]
+    direct=[dist(uR,v),dist(uL,v),dist(uU,v),dist(uD,v),dist(shortcut,v)]
+    total=zip(neigh,direct)
+    
+    #print('neigh: ',neigh)
+    minimum=min(direct)
+    for i,j in total:
+        if j == minimum:
+            #print ('minimum: ',i)
+            return i
+            
+def kleinberg_distance(runs,n,r):
+    randNodeU=(np.random.choice(n, 2))
+    randNodeV=(np.random.choice(n, 2))
+    #print(randNodeU)
+    #print(randNodeV)
+    #randNodeU=[4,4]
+    #randNodeV=[55,59]
+    #number of shortcuts==1
+    k=1
+    closestNode=randNodeU
+    steps=0
+    #per each step of this algorithm we should be closer and closer to node randNodeV(finish node).
+    while set(randNodeV) != set(closestNode):
+        #print ('closestNode: ',closestNode)
+        #calculate shortcut(
+        #shortcut=make_shortcut_offset(k,r,n, nodePos=tuple(randNodeU))
+        shortcut=make_shortcut_offset(k,r,n, nodePos=tuple(closestNode))
+        #print ('shortcutRAW',shortcut)
+        shortcut=list(chain(*shortcut))
+        #print ('shortcut',shortcut)
+        closestNode=shortestDistance(closestNode,randNodeV,shortcut)
+        #print(closestNode)
+        steps+=1
+    #if dist(randNodeU,randNodeV) != cnt:
+        #print ("shortcut choosed")
+    return steps
+
